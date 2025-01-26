@@ -9,7 +9,6 @@ from datetime import datetime
 from datetime import date
 from uuid import UUID
 from typing import Optional, List
-from fastapi.responses import RedirectResponse
 
 
 app = FastAPI()
@@ -158,13 +157,10 @@ async def borrowers(request: Request):
 
 
 @app.post("/borrowers", response_class=HTMLResponse)
-async def create_borrower(request: Request,name: str = Form(...),email: str = Form(...),phone_number: str = Form(...),created_at: Optional[str] = Form(None),membership_date: Optional[str] = Form(None),db: Session = Depends(get_db)):
+async def create_borrower(request: Request,name: str = Form(...),email: str = Form(...),phone_number: str = Form(...),created_at: str =Form(...),membership_date: str =Form(...),db: Session = Depends(get_db)):
     if db.query(Borrowers).filter(Borrowers.email == email).first():
         raise HTTPException(status_code=400, detail="Email already exists")
-     
-    membership_date = membership_date or datetime.today().date()
-    created_at = created_at or datetime.now().isoformat()
-    
+      
     borrower = Borrowers(name=name,email=email,phone_number=phone_number,membership_date=membership_date,created_at=created_at)
     db.add(borrower)
     db.commit()
